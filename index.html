@@ -630,7 +630,7 @@
         activeCountLabel.innerText = totalLiveRedDots;
     }
 
-    function toggleStreamGrid(memberId) {
+   function toggleStreamGrid(memberId) {
         const targetBtn = document.getElementById("btn-" + memberId);
         const channelId = couganMembersData[memberId].channelId;
 
@@ -656,7 +656,14 @@
             streamContainerCard.className = 'col-stream-item transition-all-mv';
 
             let muteParam = globalAudioMuted ? "&mute=1" : "&mute=0";
-            let videoEmbedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1${muteParam}`;
+
+            // PERBAIKAN DI SINI: Utamakan videoId yang berhasil discan oleh backend check.js
+            let videoEmbedUrl = "";
+            if (extractedVideoIds[memberId]) {
+                videoEmbedUrl = `https://www.youtube.com/embed/${extractedVideoIds[memberId]}?autoplay=1${muteParam}`;
+            } else {
+                videoEmbedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1${muteParam}`;
+            }
 
             streamContainerCard.innerHTML = `
                 <div class="video-monitor-frame-box d-flex flex-column h-100">
