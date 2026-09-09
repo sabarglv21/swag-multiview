@@ -1,11 +1,8 @@
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-
   const { channelId } = req.query;
 
   if (!channelId) {
-    return res.status(400).json({ status: 'error', isLive: false, videoId: null });
+    return res.status(400).json({ status: 'error', isLive: false });
   }
 
   try {
@@ -19,39 +16,22 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // 1. Cek jadwal mendatangkan (upcoming)
+    // Cek apakah murni jadwal mendatangkan/upcoming
     const isScheduled = html.includes('"isUpcoming":true') || html.includes('"upcomingEventData"');
 
-    // 2. Cek indikator status live jalan (termasuk Streamlabs / OBS)
+    // Cek indikator murni live jalan
     const isCurrentlyLive = html.includes('"isLive":true') || 
                             html.includes('"isLiveDvrEnabled":true') || 
-                            html.includes('{"style":"LIVE"') ||
-                            html.includes('isLiveContent":true') ||
-                            html.includes('hqdefault_live.jpg');
+                            html.includes('{"style":"LIVE"');
 
+    // Nyala merah HANYA KALAU live jalan DAN BUKAN jadwal murni
     const finalIsLive = isCurrentlyLive && !isScheduled;
-
-    let videoId = null;
-
-    if (finalIsLive) {
-      // Ambil Video ID spesifik milik channel
-      const canonicalMatch = html.match(/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})">/);
-      const microMatch = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
-
-      if (canonicalMatch && canonicalMatch[1]) {
-        videoId = canonicalMatch[1];
-      } else if (microMatch && microMatch[1]) {
-        videoId = microMatch[1];
-      }
-    }
 
     return res.status(200).json({
       status: 'success',
-      isLive: finalIsLive,
-      videoId: videoId
+      isLive: finalIsLive
     });
-
   } catch (error) {
-    return res.status(200).json({ status: 'error', isLive: false, videoId: null });
+    return res.status(200).json({ status: 'error', isLive: false });
   }
 }
