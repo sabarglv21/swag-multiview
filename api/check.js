@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // CORS Header
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
@@ -20,10 +19,10 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // 1. Cek apakah ini sekadar jadwal mendatang / upcoming
+    // 1. Cek jadwal mendatangkan (upcoming)
     const isScheduled = html.includes('"isUpcoming":true') || html.includes('"upcomingEventData"');
 
-    // 2. Cek indikator status live aktif (termasuk Streamlabs & OBS)
+    // 2. Cek indikator status live jalan (termasuk Streamlabs / OBS)
     const isCurrentlyLive = html.includes('"isLive":true') || 
                             html.includes('"isLiveDvrEnabled":true') || 
                             html.includes('{"style":"LIVE"') ||
@@ -35,10 +34,8 @@ export default async function handler(req, res) {
     let videoId = null;
 
     if (finalIsLive) {
-      // Prioritas 1: Ambil Video ID dari Link Canonical (Paling Akurat untuk Streamlabs)
+      // Ambil Video ID spesifik milik channel
       const canonicalMatch = html.match(/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})">/);
-      
-      // Prioritas 2: Ambil dari Microformat Video ID
       const microMatch = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
 
       if (canonicalMatch && canonicalMatch[1]) {
