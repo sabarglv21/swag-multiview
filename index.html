@@ -37,6 +37,7 @@
 
         .main-wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative; }
         
+        /* Modern Glassmorphism Top Bar */
         .top-bar-panel {
             background: var(--panel-bg);
             backdrop-filter: blur(12px);
@@ -58,6 +59,7 @@
             letter-spacing: 0.8px;
         }
 
+        /* Dynamic Grid Layout */
         #streamDynamicGridLayout {
             display: grid !important; 
             gap: 12px !important; 
@@ -83,6 +85,7 @@
 
         .col-stream-item { width: 100% !important; height: 100% !important; min-height: 180px !important; }
         
+        /* Cyber-style Video Frame Card */
         .video-monitor-frame-box {
             height: 100% !important; 
             width: 100% !important; 
@@ -146,6 +149,7 @@
         .ratio-16x9 { flex-grow: 1; position: relative; width: 100% !important; height: 100% !important; }
         .ratio-16x9 iframe { position: absolute !important; top: 0; left: 0; width: 100% !important; height: 100% !important; border: 0; }
 
+        /* Sleek Modern Modal */
         .modal-content { 
             background: rgba(15, 20, 31, 0.95); 
             backdrop-filter: blur(20px);
@@ -291,6 +295,7 @@
             padding: 40px 20px;
         }
 
+        /* Modern Toast Notification */
         .toast-container-custom {
             position: fixed;
             top: 68px;
@@ -328,6 +333,7 @@
 </head>
 <body>
     
+    <!-- Cyber Toast Popup -->
     <div class="toast-container-custom">
         <div class="toast-cyber" id="refreshToast">
             <i class="fas fa-sync-alt text-warning fa-spin" id="toastStatusIcon"></i>
@@ -591,7 +597,7 @@
             const iframe = document.querySelector(`#wrapper-video-${memberId} iframe`);
             if (iframe) {
                 let src = iframe.src;
-                src = globalAudioMuted ? src.replace('mute=0', 'mute=1') : src.replace('mute=1', 'mute=0');
+                src = globalAudioMuted ? src.replace('&mute=0', '&mute=1') : src.replace('&mute=1', '&mute=0');
                 if (!src.includes('mute=')) src += globalAudioMuted ? '&mute=1' : '&mute=0';
                 iframe.src = src;
             }
@@ -648,10 +654,12 @@
             streamContainerCard.id = "wrapper-video-" + memberId;
             streamContainerCard.className = 'col-stream-item transition-all-mv';
 
-            let muteParam = globalAudioMuted ? "mute=1" : "mute=0";
+            let muteParam = globalAudioMuted ? "&mute=1" : "&mute=0";
+
+            // PERBAIKAN DI SINI: Gunakan extractedVideoIds jika ada, bukan dipaksa live_stream?channel=
             let videoEmbedUrl = extractedVideoIds[memberId] 
-                ? "https://www.youtube.com/embed/" + extractedVideoIds[memberId] + "?autoplay=1&" + muteParam
-                : "https://www.youtube.com/embed/live_stream?channel=" + channelId + "&autoplay=1&" + muteParam;
+                ? `https://www.youtube.com/embed/${extractedVideoIds[memberId]}?autoplay=1${muteParam}`
+                : `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1${muteParam}`;
 
             streamContainerCard.innerHTML = `
                 <div class="video-monitor-frame-box d-flex flex-column h-100">
@@ -667,7 +675,7 @@
                     </div>
 
                     <div class="ratio ratio-16x9">
-                        <iframe src="${videoEmbedUrl}&origin=${encodeURIComponent(window.location.origin)}" 
+                        <iframe src="${videoEmbedUrl}" 
                                 title="${memberId} stream POV" frameborder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                                 allowfullscreen></iframe>
@@ -722,7 +730,6 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         generateMemberButtons();
-        setInterval(checkAllMembersLiveStatus, 60000);
     });
     </script>
 </body>
