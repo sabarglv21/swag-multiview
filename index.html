@@ -657,12 +657,27 @@
 
             let muteParam = globalAudioMuted ? "&mute=1" : "&mute=0";
 
-            // PERBAIKAN DI SINI: Utamakan videoId yang berhasil discan oleh backend check.js
-            let videoEmbedUrl = "";
+            // LOGIKA PENTING:
+            // Jika member LIVE (videoId ada), muat iframe YouTube.
+            // Jika OFFLINE, tampilkan kartu penanda Offline (bukan iframe YouTube random).
+            let monitorContent = "";
+
             if (extractedVideoIds[memberId]) {
-                videoEmbedUrl = `https://www.youtube.com/embed/${extractedVideoIds[memberId]}?autoplay=1${muteParam}`;
+                const videoEmbedUrl = `https://www.youtube.com/embed/${extractedVideoIds[memberId]}?autoplay=1${muteParam}`;
+                monitorContent = `
+                    <div class="ratio ratio-16x9">
+                        <iframe src="${videoEmbedUrl}" 
+                                title="${memberId} stream POV" frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen></iframe>
+                    </div>`;
             } else {
-                videoEmbedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1${muteParam}`;
+                monitorContent = `
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-3" style="background: rgba(10, 14, 23, 0.95);">
+                        <i class="fas fa-video-slash text-danger mb-2" style="font-size: 2rem;"></i>
+                        <div class="fw-bold text-white small">${couganMembersData[memberId].name.toUpperCase()} OFFLINE</div>
+                        <div class="text-white-50" style="font-size: 0.72rem;">Streamer sedang tidak Melakukan Live Streaming</div>
+                    </div>`;
             }
 
             streamContainerCard.innerHTML = `
@@ -677,13 +692,7 @@
                             <button class="monitor-action-btn close-monitor-x-btn" onclick="closeStreamFrame('${memberId}')" title="Tutup Stream">&times;</button>
                         </div>
                     </div>
-
-                    <div class="ratio ratio-16x9">
-                        <iframe src="${videoEmbedUrl}" 
-                                title="${memberId} stream POV" frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                allowfullscreen></iframe>
-                    </div>
+                    ${monitorContent}
                 </div>
             `;
 
