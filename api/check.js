@@ -16,17 +16,25 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // Cek apakah murni jadwal mendatang/upcoming
-    const isScheduled = html.includes('"isUpcoming":true') || html.includes('"upcomingEventData"');
+    // 1. VALIDASI UTAMA: Pastikan channelId milik streamer ada di HTML
+    // Jika tidak ada, artinya YouTube me-redirect ke video rekomendasi channel lain!
+    const isAuthenticChannel = html.includes(`"channelId":"${channelId}"`) || 
+                               html.includes(`"externalId":"${channelId}"`) ||
+                               html.includes(`/channel/${channelId}`);
 
-    // Cek indikator live (termasuk encoder Streamlabs / OBS)
+    if (!isAuthenticChannel) {
+      return res.status(200).json({ status: 'success', isLive: false, videoId: null });
+    }
+
+    // 2. Filter Status Live & Upcoming (Mendatang)
+    const isScheduled = html.includes('"isUpcoming":true') || html.includes('"upcomingEventData"');
     const isCurrentlyLive = html.includes('"isLive":true') || 
-                            html.includes('"isLiveDvrEnabled":true') || 
+                            html.includes('"isLiveNow":true') || 
+                            html.includes('"isLiveDvrEnabled":true') ||
                             html.includes('{"style":"LIVE"') ||
-                            html.includes('"isLiveNow":true') ||
                             html.includes('BADGE_STYLE_TYPE_LIVE_NOW');
 
-    // Ekstrak Video ID unik milik streamer
+    // 3. Ekstrak Video ID asli milik streamer
     let extractedVideoId = null;
     const videoIdMatch = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
     if (videoIdMatch && videoIdMatch[1]) {
@@ -38,7 +46,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const finalIsLive = isCurrentlyLive && !isScheduled;
+    const finalIsLive = isAuthenticChannel && isCurrentlyLive && !isScheduled && extractedVideoId !== null;
 
     return res.status(200).json({
       status: 'success',
