@@ -37,7 +37,6 @@
 
         .main-wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative; }
         
-        /* Modern Glassmorphism Top Bar */
         .top-bar-panel {
             background: var(--panel-bg);
             backdrop-filter: blur(12px);
@@ -59,7 +58,6 @@
             letter-spacing: 0.8px;
         }
 
-        /* Dynamic Grid Layout */
         #streamDynamicGridLayout {
             display: grid !important; 
             gap: 12px !important; 
@@ -85,7 +83,6 @@
 
         .col-stream-item { width: 100% !important; height: 100% !important; min-height: 180px !important; }
         
-        /* Cyber-style Video Frame Card */
         .video-monitor-frame-box {
             height: 100% !important; 
             width: 100% !important; 
@@ -149,7 +146,6 @@
         .ratio-16x9 { flex-grow: 1; position: relative; width: 100% !important; height: 100% !important; }
         .ratio-16x9 iframe { position: absolute !important; top: 0; left: 0; width: 100% !important; height: 100% !important; border: 0; }
 
-        /* Sleek Modern Modal */
         .modal-content { 
             background: rgba(15, 20, 31, 0.95); 
             backdrop-filter: blur(20px);
@@ -295,7 +291,6 @@
             padding: 40px 20px;
         }
 
-        /* Modern Toast Notification */
         .toast-container-custom {
             position: fixed;
             top: 68px;
@@ -333,7 +328,6 @@
 </head>
 <body>
     
-    <!-- Cyber Toast Popup -->
     <div class="toast-container-custom">
         <div class="toast-cyber" id="refreshToast">
             <i class="fas fa-sync-alt text-warning fa-spin" id="toastStatusIcon"></i>
@@ -536,7 +530,6 @@
             const data = await response.json();
 
             if (data.status === 'success' && data.isLive) {
-                // Simpan Video ID jika ada (terutama untuk Ruto / Streamlabs)
                 if (data.videoId) {
                     extractedVideoIds[memberId] = data.videoId;
                 }
@@ -659,9 +652,6 @@
 
             let muteParam = globalAudioMuted ? "mute=1" : "mute=0";
 
-            // PERBAIKAN EMBED STREAMLABS / RUTO:
-            // Jika Video ID ter-detect oleh backend, pakai URL /embed/VIDEO_ID
-            // Jika tidak, baru fallback ke /embed/live_stream?channel=CHANNEL_ID
             let videoEmbedUrl = "";
             if (extractedVideoIds[memberId]) {
                 videoEmbedUrl = `https://www.youtube.com/embed/${extractedVideoIds[memberId]}?autoplay=1&${muteParam}`;
